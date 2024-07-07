@@ -221,7 +221,7 @@ function Highscores(params)
 	if not highscoresCache[params.category] then
 		highscoresCache[params.category] = {}
 	end
-
+print(1)
 	return {
 		get = get,
 		fetch = fetch,
