@@ -5,7 +5,7 @@
 
 #include "actions.h"
 
-#include "bed.h"
+#include "bed.h" 
 #include "configmanager.h"
 #include "container.h"
 #include "game.h"
