@@ -1,0 +1,51 @@
+name: TFS Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          build-essential \
+          libboost-system-dev \
+          libboost-iostreams-dev \
+          libboost-filesystem-dev \
+          libpugixml-dev \
+          liblua5.2-dev \
+          libgmp-dev \
+          libmysqlclient-dev \
+          libssl-dev
+
+    - name: Build TFS
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make -j$(nproc)
+
+    - name: Archive build artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: tfs-build
+        path: build/tfs
+        retention-days: 5
+
+    - name: Cleanup
+      run: |
+        rm -rf build
