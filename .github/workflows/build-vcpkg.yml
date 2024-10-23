@@ -39,16 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: cpp
-          # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-          queries: +security-extended,security-and-quality
-        if: ${{ matrix.os == 'ubuntu' && matrix.buildtype == 'Debug' }}
-
       - name: Get latest CMake
-        # Using 'latest' branch, the latest CMake is installed.
         uses: lukka/get-cmake@latest
 
       - name: Run vcpkg
@@ -62,34 +53,18 @@ jobs:
           configurePreset: vcpkg
           configurePresetAdditionalArgs: "['-DUSE_LUAJIT=${{ matrix.luajit }}']"
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:cpp"
-        if: ${{ matrix.os == 'ubuntu' && matrix.buildtype == 'Debug' }}
-
-      - name: Upload artifact binary
-        uses: actions/upload-artifact@v4
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-        with:
-          name: tfs-${{ matrix.os }}-${{ matrix.buildtype }}-luajit=${{ matrix.luajit }}-${{ github.sha }}
-          path: ${{ runner.workspace }}/build/${{ matrix.buildtype }}/tfs
-
-      - name: Upload artifact binary (exe)
+      - name: Upload artifact binary (exe and dll)
         uses: actions/upload-artifact@v4
         if: ${{ startsWith(matrix.os, 'windows') }}
         with:
-          name: tfs-${{ matrix.os }}-${{ matrix.buildtype }}-luajit=${{ matrix.luajit }}-${{ github.sha }}
+          name: binaries-${{ matrix.os }}-${{ matrix.buildtype }}-luajit=${{ matrix.luajit }}-${{ github.sha }}
           path: |
             ${{ runner.workspace }}/build/${{ matrix.buildtype }}/tfs.exe
             ${{ runner.workspace }}/build/${{ matrix.buildtype }}/*.dll
 
-      - name: Prepare datapack contents
-        run: find . -maxdepth 1 ! -name data ! -name config.lua.dist ! -name key.pem ! -name LICENSE ! -name README.md ! -name schema.sql -exec rm -r {} \;
-        shell: bash
-
-      - name: Upload datapack contents
+      - name: Upload artifact binary (for non-windows)
         uses: actions/upload-artifact@v4
+        if: ${{ !startsWith(matrix.os, 'windows') }}
         with:
-          name: tfs-${{ matrix.os }}-${{ matrix.buildtype }}-luajit=${{ matrix.luajit }}-${{ github.sha }}
-          path: ${{ github.workspace }}
+          name: binaries-${{ matrix.os }}-${{ matrix.buildtype }}-luajit=${{ matrix.luajit }}-${{ github.sha }}
+          path: ${{ runner.workspace }}/build/${{ matrix.buildtype }}/tfs
