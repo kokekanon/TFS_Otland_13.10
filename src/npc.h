@@ -156,6 +156,8 @@ public:
 
 	const auto& getSpectators() { return spectators; }
 
+	void goToFollowCreature() override;
+
 private:
 	explicit Npc(const std::string& name);
 

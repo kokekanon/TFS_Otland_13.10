@@ -1,6 +1,6 @@
 local event = GlobalEvent("raids")
 
-local CHECK_RAIDS_INTERVAL = 60
+local CHECK_RAIDS_INTERVAL = 60 * 1000
 local MAX_RAND_RANGE = 10000000
 
 event:interval(CHECK_RAIDS_INTERVAL)
@@ -11,7 +11,7 @@ local lastRaidEnd = 0
 function event.onTime(interval)
 	io.write(">> Executing raids event...\n")
 	if running then
-		return
+		return true
 	end
 
 	local now = os.mtime()
@@ -31,6 +31,7 @@ function event.onTime(interval)
 			break
 		end
 	end
+	return true
 end
 
 event:register()

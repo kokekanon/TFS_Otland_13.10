@@ -153,6 +153,10 @@ do
 			self:type("logout")
 			self:onLogout(value)
 			return
+		elseif key == "onReconnect" then
+			self:type("reconnect")
+			self:onReconnect(value)
+			return
 		elseif key == "onThink" then
 			self:type("think")
 			self:onThink(value)
@@ -622,6 +626,7 @@ function getPlayersByIPAddress(ip, mask)
 	if not mask then mask = 0xFFFFFFFF end
 	local masked = bit.band(ip, mask)
 	local lshift = bit.lshift
+	local players = {}
 	for _, player in ipairs(Game.getPlayers()) do
 		local a, b, c, d = player:getIp():match("(%d*)%.(%d*)%.(%d*)%.(%d*)")
 		if a and b and c and d and bit.band(lshift(a, 24) + lshift(b, 16) + lshift(c, 8) + d, mask) == masked then
@@ -663,19 +668,9 @@ function getPlayerGUIDByName(name)
 	end
 	return 0
 end
-function getAccountNumberByPlayerName(name)
-	local player = Player(name)
-	if player then
-		return player:getAccountId()
-	end
 
-	local resultId = db.storeQuery("SELECT `account_id` FROM `players` WHERE `name` = " .. db.escapeString(name))
-	if resultId then
-		local accountId = result.getNumber(resultId, "account_id")
-		result.free(resultId)
-		return accountId
-	end
-	return 0
+function getAccountNumberByPlayerName(name)
+	return Game.getPlayerAccountId(name)
 end
 
 getPlayerAccountBalance = getPlayerBalance
@@ -1141,7 +1136,6 @@ function getTileInfo(position)
 	ret.protection = t:hasFlag(TILESTATE_PROTECTIONZONE)
 	ret.nopz = ret.protection
 	ret.nologout = t:hasFlag(TILESTATE_NOLOGOUT)
-	ret.refresh = t:hasFlag(TILESTATE_REFRESH)
 	ret.house = t:getHouse()
 	ret.bed = t:hasFlag(TILESTATE_BED)
 	ret.depot = t:hasFlag(TILESTATE_DEPOT)
