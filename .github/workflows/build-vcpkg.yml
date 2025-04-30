@@ -49,7 +49,7 @@ jobs:
 
       - name: Get latest CMake
         # Using 'latest' branch, the latest CMake is installed.
-        uses: lukka/get-cmake@latest
+        uses: lukka/get-cmake@v3.31.6
 
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v11
